@@ -76,7 +76,6 @@ class Call{
 		.setDescription("")
 		.setTimestamp()
 
-		this.base_interaction = interaction
 		this.auteur = interaction.member;
 		this.sto = [];
 		this.max = max;
@@ -165,7 +164,7 @@ class Call{
 	open_listeners(){
 
 		var call = this;
-		this.client.myem.on(this.base_interaction.id, async function (interaction) {
+		this.client.myem.on(this.mess_relpy.id, async function (interaction) {
 			var command;
 			var member;
 			if(arguments[1] != undefined ){
@@ -197,7 +196,7 @@ class Call{
 	}
 
 	async update(){
-		this.base_interaction.editReply({
+		this.mess_relpy.edit({
 			embeds:[this.myEmbed], 
 			components:[{
 				"type": 1,

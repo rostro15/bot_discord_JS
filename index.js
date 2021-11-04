@@ -107,7 +107,7 @@ client.on('interactionCreate', async interaction => {
 	switch(interaction.type){
 		case "MESSAGE_COMPONENT": //commande issue des component
 		
-			if(!client.myem.emit(interaction.message.interaction.id, interaction)){
+			if(!client.myem.emit(interaction.message.id, interaction)){
 				interaction.deferUpdate()
 			}
 		break;
@@ -272,7 +272,6 @@ client.on('interactionCreate', async interaction => {
 						break;
 					}
 
-					base_interaction_id = client.call_list[mess_relpy_ID].base_interaction.id
 
 					client.users.fetch(members_ID)
 					.then(function(members_a_mod){
@@ -280,15 +279,15 @@ client.on('interactionCreate', async interaction => {
 						if(args.get("action").value=="add"){
 						
 							if (client.call_list[mess_relpy_ID].max == 0){
-								client.myem.emit(base_interaction_id, "join", members_a_mod )
+								client.myem.emit(mess_relpy_ID, "join", members_a_mod )
 							}else{
-								client.myem.emit(base_interaction_id, "join", members_a_mod )								
+								client.myem.emit(mess_relpy_ID, "join", members_a_mod )								
 							}
 						}else{
 							if (client.call_list[mess_relpy_ID].max == 0){
-								client.myem.emit(base_interaction_id, "leave", members_a_mod )	
+								client.myem.emit(mess_relpy_ID, "leave", members_a_mod )	
 							}else{
-								client.myem.emit(base_interaction_id, "leave", members_a_mod )	
+								client.myem.emit(mess_relpy_ID, "leave", members_a_mod )	
 							}
 			
 						}
