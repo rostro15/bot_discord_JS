@@ -6,7 +6,7 @@ const { inspect } = require('util');
 const intro = [
 '////////////////////////////////////////////////////////////////',
 '///////////             BOT DISCORD v5.0             ///////////',
-'///////////              un code propre              ///////////',
+'///////////        un code propre et MAJ api         ///////////',
 '///////////   author : Theo "rostro15" RUSINOWITCH   ///////////',
 '///////////         discord : rostro15#9153          ///////////',
 '///////////        mail : teo.rusi@hotmail.fr        ///////////',
@@ -116,7 +116,6 @@ client.on('interactionCreate', async interaction => {
 		case "APPLICATION_COMMAND": //commande issue des commandes slash
 			command = interaction.commandName.toLowerCase();
 			const args = interaction.options;
-			console.dir(interaction.options.get("message"))
 			switch(command) {
 				case "help":
 					new Help(client,interaction)

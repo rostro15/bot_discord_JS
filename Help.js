@@ -96,7 +96,6 @@ class Help{
 		var help = this;
 		this.em.on(this.id, async function (interaction) {
 			var command = interaction.customId;
-			console.log(command)
 			switch(command){
 				case "help_index":
 					help.index(interaction);
