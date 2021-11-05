@@ -106,9 +106,11 @@ client.on('interactionCreate', async interaction => {
 	//console.dir(interaction)
 	switch(interaction.type){
 		case "MESSAGE_COMPONENT": //commande issue des component
-		
 			if(!client.myem.emit(interaction.message.id, interaction)){
-				interaction.deferUpdate()
+				
+				if(!client.myem.emit(interaction.message.interaction.id, interaction)){
+					interaction.deferUpdate()
+				}
 			}
 		break;
 		case "APPLICATION_COMMAND": //commande issue des commandes slash
@@ -465,11 +467,11 @@ client.on("guildCreate", function(guild){
 
 // declanche un evenement lors d'une maj du status d'une personne 
 client.on("voiceStateUpdate", function(oldState, newState) {
-
 	// récupère l'objet membre complet
 	newState.guild.members.fetch(oldState.id)
   	.then(member => {
-  		if (newState.channelID != oldState.channelID ) { //on regarde si il y a un changement de salon
+		
+  		if (newState.channelId	!= oldState.channelId ) { //on regarde si il y a un changement de salon
 
   			var rawdata = fs.readFileSync("guild_sto/"+newState.guild.id+'.json');
 			var guild_sto = JSON.parse(rawdata);
@@ -482,6 +484,7 @@ client.on("voiceStateUpdate", function(oldState, newState) {
 		  		}
 			}
 
+			
 			for(var key in guild_sto.vocal_role) {
 		  		var value = guild_sto.vocal_role[key];
 

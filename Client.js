@@ -8,7 +8,7 @@ const config = require("./config.json");
 class monClient extends Discord.Client {
 	constructor(){
         
-        super({ intents: [Discord.Intents.FLAGS.GUILDS, Discord.Intents.FLAGS.GUILD_MESSAGES] });
+        super({ intents: [Discord.Intents.FLAGS.GUILDS, Discord.Intents.FLAGS.GUILD_MESSAGES, Discord.Intents.FLAGS.GUILD_VOICE_STATES] });
         this.myem = new events.EventEmitter();
         this.call_list = {}
 	}

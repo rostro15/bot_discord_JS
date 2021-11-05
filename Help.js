@@ -88,14 +88,12 @@ class Help{
 		interaction.reply({ephemeral:true, embeds:[embed], components:this.component  });
 
 		this.open_listeners();
-		var help = this
 		this.close()
 	}
 
 	open_listeners(){
 
 		var help = this;
-		console.log(this.id)
 		this.em.on(this.id, async function (interaction) {
 			var command = interaction.customId;
 			console.log(command)
