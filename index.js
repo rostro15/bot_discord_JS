@@ -16,7 +16,7 @@ const intro = [
 // importation des classe
 const monClient = require("./Client.js");
 const Call = require("./Call.js");
-const Help = require("./Help.js"); //pas implanter
+const Help = require("./Help.js");
 
 const config = require("./config.json");
 const client = new monClient();
@@ -53,7 +53,7 @@ client.on('ready', async () => {
 	var fileData = JSON.parse(rawdata);
 	for(var key in fileData) {
 		var value = fileData[key];
-		new Call(em, value, key);
+		new Call(client, value, key);
 	}
 
 	client.guilds.cache.each(guild => { //liste des guilds dans lequelles il y a le bot

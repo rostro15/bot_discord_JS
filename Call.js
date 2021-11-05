@@ -23,12 +23,14 @@ class Call{
 
 				var data = JSON.stringify(fileData);
 				fs.writeFileSync("call_sto/call_sto.json", data);
+				console.error(error);
 				console.log("call non trouvé");
 				return
 			}
 			console.error(error);
 		}
 
+		
 		this.mess_relpy =  message;
 		this.messID =  message.id;
 		this.auteur = {user: message.author};
@@ -46,9 +48,8 @@ class Call{
 		}else{
 			this.sto = this.myEmbed.description.split("\n");
 		}
-		
 
-
+		console.log("call found : " + this.myEmbed.title);
 		this.open_listeners();
 	}
 
