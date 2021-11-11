@@ -3,6 +3,7 @@ const fs = require('fs');
 const events = require('events');
 const { inspect } = require('util');
 
+const fetch = require('node-fetch');
 const intro = [
 '////////////////////////////////////////////////////////////////',
 '///////////             BOT DISCORD v5.0             ///////////',
@@ -17,6 +18,9 @@ const intro = [
 const monClient = require("./Client.js");
 const Call = require("./Call.js");
 const Help = require("./Help.js");
+const Media_api = require("./Media_api.js");
+
+media_api = new Media_api()
 
 const config = require("./config.json");
 const client = new monClient();
@@ -90,14 +94,23 @@ client.on("messageCreate", async function(message) {
 		if (!config.admin_ID.includes(message.author.id)) return;
 		
 		var evaled;
+		var return_value = "";
 		try {
 		  evaled = await eval(args.join(' '));
-		  message.channel.send("```json\n"+inspect(evaled)+"```");
+		  return_value = "```json\n"+inspect(evaled)+"```";
+		  
 		  console.log(inspect(evaled, depth=1, colorize=true));
 		}catch (error) {
 		  console.error(error.toString());
-		  message.channel.send("```"+error.stack+"```");
+		  return_value = "```"+error.stack+"```"
 		}
+		return_value = return_value.match(/.{1,50}/g)
+		console.dir(return_value)
+		for (i in return_value){
+			message.channel.send(return_value[i]);
+			//console.dir(i)
+		}
+
 	}
 });
 
@@ -119,6 +132,75 @@ client.on('interactionCreate', async interaction => {
 			switch(command) {
 				case "help":
 					new Help(client,interaction)
+				break;
+				case "lol_stat":
+					var user_name = args.get("user_name").value;
+					
+					
+
+					var response = await fetch('https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/'+encodeURI(user_name), {
+						method: 'get',
+						headers: {
+							"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:94.0) Gecko/20100101 Firefox/94.0",
+							"Accept-Language": "fr,fr-FR;q=0.8,en-US;q=0.5,en;q=0.3",
+							"Accept-Charset": "application/x-www-form-urlencoded; charset=UTF-8",
+							"Origin": "https://rostro15.fr",
+							"X-Riot-Token": "RGAPI-e424179c-4a33-4290-8012-e164f956a313"
+						}
+					});
+					user_data = await response.json()
+					
+					if(user_data.id == undefined){interaction.reply({ephemeral:true,content:"\\💣		nom d'utilisateur non trouvé"}); break;}
+					
+
+					var response = await fetch('https://euw1.api.riotgames.com/lol/league/v4/entries/by-summoner/'+user_data.id, {
+						method: 'get',
+						headers: {
+							"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:94.0) Gecko/20100101 Firefox/94.0",
+							"Accept-Language": "fr,fr-FR;q=0.8,en-US;q=0.5,en;q=0.3",
+							"Accept-Charset": "application/x-www-form-urlencoded; charset=UTF-8",
+							"Origin": "https://rostro15.fr",
+							"X-Riot-Token": "RGAPI-e424179c-4a33-4290-8012-e164f956a313"
+						}
+					});
+					ranked_data = await response.json()
+
+					var embeds = []
+					for (const i in ranked_data) {
+						var myEmbed = new Discord.MessageEmbed()
+						.setColor('#0099ff')
+						.setTitle(ranked_data[i].tier+" "+ranked_data[i].rank)
+						.setAuthor(ranked_data[i].queueType+" of "+user_data.name, "http://ddragon.leagueoflegends.com/cdn/11.22.1/img/profileicon/"+user_data.profileIconId+".png")
+						.setDescription(ranked_data[i].leaguePoints+" LP")
+						.setThumbnail("http://rostro15.fr:15150/img/"+ranked_data[i].tier+".png")
+						.setFields([
+							{name:"wins",value:""+ranked_data[i].wins,inline:true},
+							{name:"losses",value:""+ranked_data[i].losses,inline:true}
+						])
+						.setTimestamp()
+						.setFooter("insane","https://cdn.discordapp.com/avatars/"+client.user.id+"/"+client.user.avatar+".webp")
+						embeds.push(myEmbed)
+					}
+					if(embeds[0] == undefined ){interaction.reply({content:"\\💣		cette utilisateur n'as pas de rang classer"}); break;}
+					if (user_name == "rostro15"){var myEmbed = new Discord.MessageEmbed()
+						.setColor('#0099ff')
+						.setTitle("CHALLENGER")
+						.setAuthor(ranked_data[0].queueType+" of "+user_data.name, "http://ddragon.leagueoflegends.com/cdn/11.22.1/img/profileicon/"+user_data.profileIconId+".png")
+						.setDescription("1005 LP")
+						.setThumbnail("http://rostro15.fr:15150/img/CHALLENGER.png")
+						.setFields([
+							{name:"wins",value:""+ranked_data[0].wins,inline:true},
+							{name:"losses",value:""+ranked_data[0].losses,inline:true}
+						])
+						.setTimestamp()
+						.setFooter("insane","https://cdn.discordapp.com/avatars/"+client.user.id+"/"+client.user.avatar+".webp")
+						interaction.reply({embeds:[myEmbed]})
+						break;
+					}
+					interaction.reply({embeds:embeds})
+
+
+
 				break;
 				case "gifmanager":
 					if(client.guilds.cache.get(interaction.guild.id).members.cache.get(interaction.member.user.id) == undefined){
@@ -299,8 +381,8 @@ client.on('interactionCreate', async interaction => {
 					interaction.reply({ephemeral:true,content:"\\✅		call bien modifier (nrml)"});
 
 				break;
-				/*case "tictactoe":
-
+				case "tictactoe":
+					/*
 					var J1_ID = Object.keys(interaction.options.resolved.members);
 					client.users.fetch(J1_ID)
 					.then(function(J1){
@@ -408,8 +490,8 @@ client.on('interactionCreate', async interaction => {
 					
 
 					
-
-				break;*/
+					*/
+				break;
 				case "game":
 					if(client.guilds.cache.get(interaction.guild.id).members.cache.get(interaction.member.user.id) == undefined){
 						interaction.reply({ephemeral:true,content:"\\💣		ecrivez un message dans n'importe quel salon du serveur visible par le bot puis refaite votre commande"});

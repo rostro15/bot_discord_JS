@@ -349,7 +349,7 @@ class Call{
 	bell(member, interaction){
 		if(this.auteur.user.id == member.user.id || this.client.check_perm(member)){
 			var sto = "";
-			this.mess_relpy.channel.send(":bell::bell::bell::bell:")
+			this.mess_relpy.channel.send(":bellhop::bellhop::bellhop::bellhop:")
 			for(var key in this.sto) {
 				if (this.sto[key] != "@XXXXXXX") {
 
@@ -363,7 +363,7 @@ class Call{
 
 			this.mess_relpy.channel.send(sto);
 
-			this.mess_relpy.channel.send(":bell::bell::bell::bell:")
+			this.mess_relpy.channel.send(":bellhop::bellhop::bellhop::bellhop:")
 
 			var rawdata = fs.readFileSync("call_sto/call_sto.json");
 			var fileData = JSON.parse(rawdata);

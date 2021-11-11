@@ -193,7 +193,7 @@ client.on('ready', () => {
 
 
 
-    client.api.applications(client.user.id).commands("843555178141188167").patch({
+    /*client.api.applications(client.user.id).commands("843555178141188167").patch({
         data:{
         "type": 1,
         "name": "modifycall",
@@ -229,23 +229,37 @@ client.on('ready', () => {
                 "required": true
             }
         ]
-    }   });
+    }   });*/
+
+    client.api.applications(client.user.id).commands.post({
+        data: {
+            name: "lol_stat",
+            type: 1,
+            description: "donne les stats d'un joueur LOL",
+            options:[{
+                name: "user_name",
+                type:3,
+                description: "pseudo du joueur (EUW only)",
+                required:true
+            }]
+        }
+    });
 
 
 
-    /*client.api.applications(client.user.id).guilds('374326170826833933').commands.post({
+    client.api.applications(client.user.id).guilds('374326170826833933').commands.post({
         data: {
             name: "test",
             type: 1,
             description: "test commande",
             options:[{
-                name: "adversaire",
-                type:6,
+                name: "user_name",
+                type:3,
                 description: "votre ennemie",
                 required:true
             }]
         }
-    });*/
+    });
 
 
 
