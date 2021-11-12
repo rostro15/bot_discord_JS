@@ -136,6 +136,17 @@ client.on('interactionCreate', async interaction => {
 				case "lol_stat":
 					var user_name = args.get("user_name").value;
 					
+					const alias_rank = {
+						BRONZE:"#87462b",
+						CHALLENGER:"#f8e5da",
+						DIAMOND:"#47318d",
+						GOLD:"#e4b657",
+						GRANDMASTER:"#fc463b",
+						IRON:"#2a1a18",
+						MASTER:"#da2beb",
+						PLATINUM:"#3b7877",
+						SILVER:"#80979e"
+					}
 					
 
 					var response = await fetch('https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/'+encodeURI(user_name), {
@@ -145,7 +156,7 @@ client.on('interactionCreate', async interaction => {
 							"Accept-Language": "fr,fr-FR;q=0.8,en-US;q=0.5,en;q=0.3",
 							"Accept-Charset": "application/x-www-form-urlencoded; charset=UTF-8",
 							"Origin": "https://rostro15.fr",
-							"X-Riot-Token": "RGAPI-e424179c-4a33-4290-8012-e164f956a313"
+							"X-Riot-Token": "RGAPI-af007d9b-26b0-424d-b032-cf247d61ed7d"
 						}
 					});
 					user_data = await response.json()
@@ -160,7 +171,7 @@ client.on('interactionCreate', async interaction => {
 							"Accept-Language": "fr,fr-FR;q=0.8,en-US;q=0.5,en;q=0.3",
 							"Accept-Charset": "application/x-www-form-urlencoded; charset=UTF-8",
 							"Origin": "https://rostro15.fr",
-							"X-Riot-Token": "RGAPI-e424179c-4a33-4290-8012-e164f956a313"
+							"X-Riot-Token": "RGAPI-af007d9b-26b0-424d-b032-cf247d61ed7d"
 						}
 					});
 					ranked_data = await response.json()
@@ -168,7 +179,7 @@ client.on('interactionCreate', async interaction => {
 					var embeds = []
 					for (const i in ranked_data) {
 						var myEmbed = new Discord.MessageEmbed()
-						.setColor('#0099ff')
+						.setColor(alias_rank[ranked_data[i].tier])
 						.setTitle(ranked_data[i].tier+" "+ranked_data[i].rank)
 						.setAuthor(ranked_data[i].queueType+" of "+user_data.name, "http://ddragon.leagueoflegends.com/cdn/11.22.1/img/profileicon/"+user_data.profileIconId+".png")
 						.setDescription(ranked_data[i].leaguePoints+" LP")
@@ -183,7 +194,7 @@ client.on('interactionCreate', async interaction => {
 					}
 					if(embeds[0] == undefined ){interaction.reply({content:"\\💣		cette utilisateur n'as pas de rang classer"}); break;}
 					if (user_name == "rostro15"){var myEmbed = new Discord.MessageEmbed()
-						.setColor('#0099ff')
+						.setColor(alias_rank[ranked_data[0].tier])
 						.setTitle("CHALLENGER")
 						.setAuthor(ranked_data[0].queueType+" of "+user_data.name, "http://ddragon.leagueoflegends.com/cdn/11.22.1/img/profileicon/"+user_data.profileIconId+".png")
 						.setDescription("1005 LP")
