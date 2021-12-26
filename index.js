@@ -156,7 +156,7 @@ client.on('interactionCreate', async interaction => {
 							"Accept-Language": "fr,fr-FR;q=0.8,en-US;q=0.5,en;q=0.3",
 							"Accept-Charset": "application/x-www-form-urlencoded; charset=UTF-8",
 							"Origin": "https://rostro15.fr",
-							"X-Riot-Token": "RGAPI-d33d2be1-76d3-41d9-bf27-7d784c496b7c"
+							"X-Riot-Token": config.riot_key
 						}
 					});
 					user_data = await response.json()
@@ -171,7 +171,7 @@ client.on('interactionCreate', async interaction => {
 							"Accept-Language": "fr,fr-FR;q=0.8,en-US;q=0.5,en;q=0.3",
 							"Accept-Charset": "application/x-www-form-urlencoded; charset=UTF-8",
 							"Origin": "https://rostro15.fr",
-							"X-Riot-Token": "RGAPI-d33d2be1-76d3-41d9-bf27-7d784c496b7c"
+							"X-Riot-Token": config.riot_key
 						}
 					});
 					ranked_data = await response.json()
