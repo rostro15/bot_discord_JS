@@ -7,7 +7,8 @@ const config = require("./config.json");
 class monClient extends Discord.Client {
 	constructor(){
         
-        super({ intents: [Discord.Intents.FLAGS.GUILDS, Discord.Intents.FLAGS.GUILD_MESSAGES, Discord.Intents.FLAGS.GUILD_VOICE_STATES] });
+        super({ intents: [Discord.GatewayIntentBits.Guilds, Discord.GatewayIntentBits.GuildMessages, Discord.GatewayIntentBits.GuildVoiceStates] });
+        //super();
         this.myem = new events.EventEmitter();
         this.call_list = {}
 	}
@@ -23,7 +24,7 @@ class monClient extends Discord.Client {
     
     ///////////////////////////////////////////////// fonctions generale /////////////////////////////////////////////////
     check_perm(member){
-        if (member.permissions.any('MANAGE_CHANNELS',true)) {
+        if (member.permissions.any(Discord.PermissionFlagsBits.ManageChannels,true)) {
             return true;
         }
         if (config.admin_ID.includes(member.id)) {

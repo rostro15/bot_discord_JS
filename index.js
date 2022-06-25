@@ -1,9 +1,16 @@
+const console = require("./Console").console
 const Discord = require("discord.js");
+const Builders = require("@discordjs/builders");
 const fs = require('fs');
 const events = require('events');
-const { inspect } = require('util');
 
 const fetch = require('node-fetch');
+
+
+console.info("\n\n\n\n\n\nStarting...");
+
+
+
 const intro = [
 '////////////////////////////////////////////////////////////////',
 '///////////             BOT DISCORD v5.0             ///////////',
@@ -34,23 +41,22 @@ var guilds = {}
 
 client.on('ready', async () => {
 	for(var key in intro) {
-		console.dir(intro[key]);
+		console.verbose(intro[key]);
 	}
 	client.user.setActivity('/help', { type: 'WATCHING' })
 
 
-	console.log('I am ready! 🚀');
-	console.log("📡 Connecter en tant que : "+client.user.tag);
+	console.debug('I am ready! 🚀');
+	console.info("📡 Connecter en tant que : "+client.user.tag+"\n");
 
-	console.log("\nListe des commandes :");
-	await client.api.applications(client.user.id).commands.get()
+	/*console.info("Liste des commandes :");
+	await client.rest.get(Routes.applicationCommands(client.user.id))
     .then(result => {
 		for(var key in result) {
 			var value = result[key];
-			console.log("/"+value.name);
+			console.info("/"+value.name);
 		} 
-		console.log("");
-	})
+	})*/
 
     //recrée les calls
 	var rawdata = fs.readFileSync("call_sto/call_sto.json");
@@ -61,11 +67,15 @@ client.on('ready', async () => {
 	}
 
 	client.guilds.cache.each(guild => { //liste des guilds dans lequelles il y a le bot
-		console.dir(guild.name);
+		console.info(guild.name);
 		guilds[guild.id] = guild
 	})
 	client.guilds_list = guilds
 
+	const modal_collector = new Discord.InteractionCollector(client, {interactionType:5})
+	modal_collector.on('collect', async (modal_interaction) => {
+		var call = client.create_call(em, modal_interaction);
+	})
 
 
 });
@@ -82,51 +92,48 @@ client.on("messageCreate", async function(message) {
 		key = key.split(" + ");
 		if (client.check_all_in(key,msg)) {
 			message.channel.send(value);
-			console.log("send : "+key);
+			console.info("send : "+key);
 		}
   	}
 
 	var args = message.content.split(' ');
 	var command = args.shift().toLowerCase();
 
-	if (command === 'eval') {//commande de debug
-
-		if (!config.admin_ID.includes(message.author.id)) return;
-		
-		var evaled;
-		var return_value = "";
-		try {
-		  evaled = await eval(args.join(' '));
-		  return_value = "```json\n"+inspect(evaled)+"```";
-		  
-		  console.log(inspect(evaled, depth=1, colorize=true));
-		}catch (error) {
-		  console.error(error.toString());
-		  return_value = "```"+error.stack+"```"
-		}
-		return_value = return_value.match(/.{1,50}/g)
-		console.dir(return_value)
-		for (i in return_value){
-			message.channel.send(return_value[i]);
-			//console.dir(i)
-		}
-
-	}
 });
 
 client.on('interactionCreate', async interaction => {
 	var command = "erreur";
-	//console.dir(interaction)
+	if(interaction.customId == "create_call_button"){
+		const modal = new Builders.Modal().setTitle("test").setCustomId("oskoyr");
+
+			const modalTextInput = new Builders.TextInputComponent().setCustomId("call_name").setLabel("Nom du call").setStyle(Discord.TextInputStyle.Short);
+			const modalTextInput_max = new Builders.TextInputComponent().setCustomId("call_max").setLabel("Nombre de place").setStyle(Discord.TextInputStyle.Short).setRequired(false).setValue("5");
+		
+		
+			const rows = new Builders.ActionRow().addComponents(modalTextInput);
+			modal.addComponents(rows)
+		
+			const rows_max = new Builders.ActionRow().addComponents(modalTextInput_max);
+			modal.addComponents(rows_max)
+		
+			await interaction.showModal(modal);
+			return;
+	}
 	switch(interaction.type){
-		case "MESSAGE_COMPONENT": //commande issue des component
+		case 3: //commande issue des component
 			if(!client.myem.emit(interaction.message.id, interaction)){
 				
-				if(!client.myem.emit(interaction.message.interaction.id, interaction)){
+				if(interaction.message.interaction != null){
+					if(!client.myem.emit(interaction.message.interaction.id, interaction)){
+						interaction.deferUpdate()
+					}
+				}else{
 					interaction.deferUpdate()
 				}
+				
 			}
 		break;
-		case "APPLICATION_COMMAND": //commande issue des commandes slash
+		case 2: //commande issue des commandes slash
 			command = interaction.commandName.toLowerCase();
 			const args = interaction.options;
 			switch(command) {
@@ -262,7 +269,6 @@ client.on('interactionCreate', async interaction => {
 
 						break;
 						case "link":
-							
 							var salonID =  member.voice.channelID;
 							if (salonID == null) { msg ='\\⛔		vous devez etre dans un salon vocal';
 							}else{
@@ -329,7 +335,49 @@ client.on('interactionCreate', async interaction => {
 					}
 				break;
 				case "call":
-					var call = client.create_call(em, interaction);
+					const modal = new Builders.Modal().setTitle("test").setCustomId("oskoyr");
+
+					const modalTextInput = new Builders.TextInputComponent().setCustomId("call_name").setLabel("Nom du call").setStyle(Discord.TextInputStyle.Short);
+					const modalTextInput_max = new Builders.TextInputComponent().setCustomId("call_max").setLabel("Nombre de place").setStyle(Discord.TextInputStyle.Short).setRequired(false).setValue("5");
+				
+				
+					const rows = new Builders.ActionRow().addComponents(modalTextInput);
+					modal.addComponents(rows)
+				
+					const rows_max = new Builders.ActionRow().addComponents(modalTextInput_max);
+					modal.addComponents(rows_max)
+				
+					await interaction.showModal(modal);
+				break;
+				case "add_call_button":
+					if(client.guilds.cache.get(interaction.guild.id).members.cache.get(interaction.member.user.id) == undefined){
+						interaction.reply({ephemeral:true,content:"\\💣		ecrivez un message dans n'importe quel salon du serveur visible par le bot puis refaite votre commande"});
+						break;
+					}
+
+					if(!client.check_perm(client.guilds.cache.get(interaction.guild.id).members.cache.get(interaction.member.user.id))){
+						interaction.reply({ephemeral:true,content:"\\⛔		vous n'avez pas les droits pour faire cette commande rip"});
+					}
+					await interaction.reply({
+						content:"pour crée un call cliquer sur le bouton",
+						components:[{
+							"type": 1,
+							
+							"components":[{
+								"type": 2,
+								"style": 3,
+								"label":"CALL",
+								"emoji":{
+									"id": null,
+									"name":"👍"
+								},
+								"custom_id": "create_call_button"
+							},
+							],
+						}],
+						fetchReply:true
+					})
+					return;
 				break;
 				case "modifycall":
 					var members_ID = args.getMember("user").user.id;
@@ -516,7 +564,7 @@ client.on('interactionCreate', async interaction => {
 					interaction.reply({ephemeral:true,content:"\\💣		une erreur inconnue a eu lieu"});
 			}
 		break;
-		case "APPLICATION_COMMAND_AUTOCOMPLETE":
+		case 4:
 			switch(interaction.commandName){
 			case "modifycall":
 				var sto = new Array()
@@ -559,7 +607,7 @@ client.on("voiceStateUpdate", function(oldState, newState) {
 		  		var value = guild_sto.vocal_role[key];
 		  		if (key == oldState.channelID ) {
 		  			member.roles.remove(value);
-		  			console.log("del : "+member.displayName);
+		  			console.info("del : "+member.displayName);
 		  		}
 			}
 
@@ -569,7 +617,7 @@ client.on("voiceStateUpdate", function(oldState, newState) {
 
 		  		if (key == newState.channelID ) {
 		  			member.roles.add(value);
-		  			console.log("add : "+member.displayName);
+		  			console.info("add : "+member.displayName);
 		  		}
 			}
 		if(guild_sto.vocal_role["global"] != undefined){
@@ -581,5 +629,9 @@ client.on("voiceStateUpdate", function(oldState, newState) {
 		}
   	});
 });
+
+
+
+
 
 client.login(config.BOT_TOKEN);

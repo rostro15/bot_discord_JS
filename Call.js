@@ -1,10 +1,12 @@
 const fs = require('fs');
 const Discord = require("discord.js");
+const Builders = require("@discordjs/builders");
+const console = require("./Console").console
 class Call{
 	constructor(){
 		this.client = arguments[0];
 		if(arguments[2] == undefined){
-			this.CreatFromInteraction(arguments[1])
+			this.CreateFromModal(arguments[1])
 		}else{
 			this.CreateFromCache(arguments[1], arguments[2])
 		}
@@ -24,7 +26,7 @@ class Call{
 				var data = JSON.stringify(fileData);
 				fs.writeFileSync("call_sto/call_sto.json", data);
 				console.error(error);
-				console.log("call non trouvé");
+				console.info("call non trouvé");
 				return
 			}
 			console.error(error);
@@ -49,18 +51,29 @@ class Call{
 			this.sto = this.myEmbed.description.split("\n");
 		}
 
-		console.log("call found : " + this.myEmbed.title);
+		console.info("call found : " + this.myEmbed.title);
 		this.open_listeners();
 	}
 
 
-	async CreatFromInteraction(interaction){
-
-		const titre_msg = interaction.options.get("message").value;
+	
+	async CreateFromModal(interaction){
+		const titre_msg = interaction.fields.getTextInputValue('call_name');
 		this.titre = titre_msg;
 		var max = 0;
-		if(interaction.options.get("max") != null){max = interaction.options.get("max").value;} 
-
+		if(interaction.fields.getTextInputValue('call_max') != null){max = interaction.fields.getTextInputValue('call_max');} 
+		try {
+			max =  parseInt(max);
+			if(isNaN(max)){
+				max = 0
+			}
+			if(max < 0 || max > 100){
+				max = 0;
+			}
+		} catch (error) {
+			max = 0
+		}
+		
 		var pseudo_auteur = interaction.member.user.username;
 		if (interaction.member.nick != null) {pseudo_auteur = interaction.member.nick;}
 		if(interaction.channel.isThread()){
@@ -69,12 +82,12 @@ class Call{
 			return;
 		}
 
-		console.log("call crée par : "+interaction.member.user.username);
-		var myEmbed = new Discord.MessageEmbed()
-		.setColor('#0099ff')
+		console.info("call crée par : "+interaction.member.user.username);
+		var myEmbed = new Builders.Embed()
+		//.setColor(180255)
 		.setTitle(titre_msg)
-		.setAuthor(pseudo_auteur, "https://cdn.discordapp.com/avatars/"+interaction.member.user.id+"/"+interaction.member.user.avatar+".webp")
-		.setDescription("")
+		.setAuthor({name: pseudo_auteur, iconURL : "https://cdn.discordapp.com/avatars/"+interaction.member.user.id+"/"+interaction.member.user.avatar+".webp"})
+		.setDescription("✋")
 		.setTimestamp()
 
 		this.auteur = interaction.member;
@@ -134,14 +147,14 @@ class Call{
 		this.client.call_list[this.messID] = this;
 
 		if (max!=0) {
-			var temp="";
+			var temp="✋";
 			for (var i = 0; i < max; i++) {
 				temp = temp + "\n@XXXXXXX";
 			}
 
 			this.cmpt = 0;
 			this.myEmbed.setDescription(temp);
-			this.myEmbed.setFooter("0/"+max);
+			this.myEmbed.setFooter({text:"0/"+max});
 			this.update()
 
 			for (var i = 0 ; i <= max - 1; i++) {
@@ -251,7 +264,7 @@ class Call{
 			await this.mess_relpy.delete();
 			delete this.client.call_list[this.messID];
 			delete this;
-		} catch (error) {console.dir(error)}
+		} catch (error) {console.error(error)}
 		
 	}
 
@@ -285,7 +298,7 @@ class Call{
 			this.myEmbed.setDescription(this.myEmbed.description+"\n"+user.toString());
 			this.update();
 
-			console.log("call : add "+user.displayName);
+			console.info("call : add "+user.displayName);
 		}
 	}
 	remove_non_max(user){
@@ -298,7 +311,7 @@ class Call{
 			if (this.sto[i] === user.toString()) { 
 				this.sto.splice(i, 1); 
 				i--;
-				console.log("call : remove "+user.displayName);
+				console.info("call : remove "+user.displayName);
 			}
 		}
 	}
@@ -321,10 +334,10 @@ class Call{
 						sto = sto+"\n"+this.sto[i];
 					}
 
-					this.myEmbed.setFooter(this.cmpt+"/"+this.max);
+					this.myEmbed.setFooter({text : this.cmpt+"/"+this.max});
 					this.myEmbed.setDescription(sto);
 					this.update();
-					console.log("call : add "+user.displayName);
+					console.info("call : add "+user.displayName);
 					break;
 				}
 			}
@@ -338,18 +351,18 @@ class Call{
 			if (this.sto[i] == user.toString()) { 
 				this.sto[i] = "@XXXXXXX";
 				this.cmpt--;
-				console.log("call : remove "+user.displayName);
+				console.info("call : remove "+user.displayName);
 			}
 		}
 		
-		this.myEmbed.setFooter(this.cmpt+"/"+this.max);
+		this.myEmbed.setFooter({text : this.cmpt+"/"+this.max});
 		this.update();
 	}
 
-	bell(member, interaction){
+	async bell(member, interaction){
 		if(this.auteur.user.id == member.user.id || this.client.check_perm(member)){
 			var sto = "";
-			this.mess_relpy.channel.send(":bellhop::bellhop::bellhop::bellhop:")
+			var msg1 = await this.mess_relpy.channel.send(":bellhop::bellhop::bellhop::bellhop:")
 			for(var key in this.sto) {
 				if (this.sto[key] != "@XXXXXXX") {
 
@@ -361,9 +374,9 @@ class Call{
 				sto = "\\😥";
 			}
 
-			this.mess_relpy.channel.send(sto);
+			var msg2 = await this.mess_relpy.channel.send(sto);
 
-			this.mess_relpy.channel.send(":bellhop::bellhop::bellhop::bellhop:")
+			var msg3 = await this.mess_relpy.channel.send(":bellhop::bellhop::bellhop::bellhop:")
 
 			var rawdata = fs.readFileSync("call_sto/call_sto.json");
 			var fileData = JSON.parse(rawdata);
@@ -372,6 +385,13 @@ class Call{
 
 			var data = JSON.stringify(fileData);
 			fs.writeFileSync("call_sto/call_sto.json", data);
+
+			setTimeout(function(msg1,msg2,msg3){
+				msg1.delete();
+				msg2.delete();
+				msg3.delete();
+				
+			}, 5 *1000 * 60 ,  msg1, msg2, msg3); //one hour
 
 			this.delete();
 			
@@ -383,7 +403,7 @@ class Call{
 
 	del(member, interaction){
 		if(this.auteur.user.id == member.user.id || this.client.check_perm(member)){
-			console.log("call close par : "+interaction.member.user.username);
+			console.info("call close par : "+interaction.member.user.username);
 
 			var rawdata = fs.readFileSync("call_sto/call_sto.json");
 			var fileData = JSON.parse(rawdata);

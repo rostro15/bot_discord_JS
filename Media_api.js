@@ -1,5 +1,6 @@
 const express = require('express')
 const port = 15150
+const console = require("./Console").console
 
 class Media_api{
 
@@ -7,7 +8,7 @@ class Media_api{
         this.app = express()
         this.app.use(express.static('public'))
         this.app.listen(port, () => {
-            console.log(`api start on rostro15.fr:${port}`)
+            console.info(`api start on rostro15.fr:${port}`)
           })
 
     }
