@@ -1,6 +1,6 @@
 const Discord = require('discord.js');
 const config = require("./config.json");
-const client = new Discord.Client({ intents: [Discord.Intents.FLAGS.GUILDS, Discord.Intents.FLAGS.GUILD_MESSAGES] });
+const client = new Discord.Client({ intents: [Discord.GatewayIntentBits.Guilds, Discord.GatewayIntentBits.GuildMessages, Discord.GatewayIntentBits.GuildVoiceStates] });
 
 client.on('ready', () => {
     /*client.api.applications(client.user.id).commands.post({
@@ -231,6 +231,7 @@ client.on('ready', () => {
         ]
     }   });*/
 
+    /*
     client.api.applications(client.user.id).commands.post({
         data: {
             name: "lol_stat",
@@ -244,9 +245,9 @@ client.on('ready', () => {
             }]
         }
     });
+    */
 
-
-
+    /*
     client.api.applications(client.user.id).guilds('374326170826833933').commands.post({
         data: {
             name: "test",
@@ -260,6 +261,7 @@ client.on('ready', () => {
             }]
         }
     });
+    */
 
 
 
@@ -273,13 +275,20 @@ client.on('ready', () => {
     });*/
 
 
+    client.application.commands.create({
+            name: "lol_trivia",
+            type: 1,
+            description: "Donne des infos esentiels sur la dernière game",
+            options:[{
+                name: "user_name",
+                type:3,
+                description: "votre ennemie",
+                required:true
+            }]
+    });
 
 
 
-
-    client.api.applications(client.user.id).commands.get()
-    .then(result => console.dir(result))
-console.dir(client.user.id)
 });
 
 

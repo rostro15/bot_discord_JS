@@ -1,6 +1,5 @@
 const fs = require('fs');
 const Discord = require("discord.js");
-const Builders = require("@discordjs/builders");
 const console = require("./Console").console
 class Call{
 	constructor(){
@@ -26,7 +25,7 @@ class Call{
 				var data = JSON.stringify(fileData);
 				fs.writeFileSync("call_sto/call_sto.json", data);
 				console.error(error);
-				console.info("call non trouvé");
+				console.warn("call non trouvé");
 				return
 			}
 			console.error(error);
@@ -36,22 +35,24 @@ class Call{
 		this.mess_relpy =  message;
 		this.messID =  message.id;
 		this.auteur = {user: message.author};
-		this.myEmbed = message.embeds[0];
-		if(this.myEmbed.footer == null){
+		var embed = message.embeds[0].data;
+		this.myEmbed = new Discord.EmbedBuilder()
+		//.setColor(180255)
+		.setTitle(embed.title)
+		.setAuthor(embed.author)
+		.setDescription(embed.description)
+		if(embed.footer != undefined){
+			this.myEmbed.setFooter(embed.footer)
+		}
+		if(this.myEmbed.data.footer == null){
 			this.max = 0;
 		}else{
-			this.max = parseInt(this.myEmbed.footer.text.split("/")[1]);
-			this.cmpt = parseInt(this.myEmbed.footer.text.split("/")[0]);
+			this.max = parseInt(this.myEmbed.data.footer.text.split("/")[1]);
+			this.cmpt = parseInt(this.myEmbed.data.footer.text.split("/")[0]);
 		}
 
-		if(this.myEmbed.description == null){
-			this.myEmbed.setDescription("");
-			this.sto = [];
-		}else{
-			this.sto = this.myEmbed.description.split("\n");
-		}
-
-		console.info("call found : " + this.myEmbed.title);
+		this.sto = this.myEmbed.data.description.split("\n");
+		console.verbose("call found : " + this.myEmbed.data.title);
 		this.open_listeners();
 	}
 
@@ -83,7 +84,7 @@ class Call{
 		}
 
 		console.info("call crée par : "+interaction.member.user.username);
-		var myEmbed = new Builders.Embed()
+		var myEmbed = new Discord.EmbedBuilder()
 		//.setColor(180255)
 		.setTitle(titre_msg)
 		.setAuthor({name: pseudo_auteur, iconURL : "https://cdn.discordapp.com/avatars/"+interaction.member.user.id+"/"+interaction.member.user.avatar+".webp"})
@@ -94,7 +95,6 @@ class Call{
 		this.sto = [];
 		this.max = max;
 		this.myEmbed = myEmbed;
-
 		var mess_relpy  = await interaction.reply({
 			embeds:[myEmbed], 
 			components:[{
@@ -303,8 +303,8 @@ class Call{
 	}
 	remove_non_max(user){
 		
-		this.myEmbed.setDescription(this.myEmbed.description.replace("\n"+user.toString(),""));
-		this.myEmbed.setDescription(this.myEmbed.description.replace(user.toString(),""));
+		this.myEmbed.setDescription(this.myEmbed.data.description.replace("\n"+user.toString(),""));
+		this.myEmbed.setDescription(this.myEmbed.data.description.replace(user.toString(),""));
 		this.update();
 		//enleve le user du sto
 		for( var i = 0; i < this.sto.length; i++){        
@@ -346,7 +346,8 @@ class Call{
 	}
 	remove_max(user){
 
-		this.myEmbed.setDescription(this.myEmbed.description.replace(user.toString(),"@XXXXXXX"));
+		//return // debug
+		this.myEmbed.setDescription(this.myEmbed.data.description.replace(user.toString(),"@XXXXXXX"));
 		for( var i = 0; i < this.sto.length; i++){        
 			if (this.sto[i] == user.toString()) { 
 				this.sto[i] = "@XXXXXXX";

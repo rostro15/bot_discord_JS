@@ -1,19 +1,17 @@
 const console = require("./Console").console
 const Discord = require("discord.js");
-const Builders = require("@discordjs/builders");
 const fs = require('fs');
 const events = require('events');
 
 const fetch = require('node-fetch');
 
 
-console.info("\n\n\n\n\n\nStarting...");
-
+console.info("Starting...");
 
 
 const intro = [
 '////////////////////////////////////////////////////////////////',
-'///////////             BOT DISCORD v5.0             ///////////',
+'///////////             BOT DISCORD v5.2             ///////////',
 '///////////        un code propre et MAJ api         ///////////',
 '///////////   author : Theo "rostro15" RUSINOWITCH   ///////////',
 '///////////         discord : rostro15#9153          ///////////',
@@ -40,14 +38,13 @@ var guilds = {}
 
 
 client.on('ready', async () => {
-	for(var key in intro) {
+	/*for(var key in intro) {
 		console.verbose(intro[key]);
-	}
+	}*/
 	client.user.setActivity('/help', { type: 'WATCHING' })
+	
 
-
-	console.debug('I am ready! 🚀');
-	console.info("📡 Connecter en tant que : "+client.user.tag+"\n");
+	console.warn("🚀 I am ready!  📡 Connecter en tant que : "+client.user.tag+"\n");
 
 	/*console.info("Liste des commandes :");
 	await client.rest.get(Routes.applicationCommands(client.user.id))
@@ -67,7 +64,7 @@ client.on('ready', async () => {
 	}
 
 	client.guilds.cache.each(guild => { //liste des guilds dans lequelles il y a le bot
-		console.info(guild.name);
+		console.data(guild.name);
 		guilds[guild.id] = guild
 	})
 	client.guilds_list = guilds
@@ -81,43 +78,26 @@ client.on('ready', async () => {
 });
 
 
-client.on("messageCreate", async function(message) {
-	if(message.author.bot)return;
-	var msg = message.content.toLowerCase()
-	var rawdata = fs.readFileSync("guild_sto/"+message.guild.id+'.json');
-	var sto = JSON.parse(rawdata);
-
-	for(var key in sto.gif) {//gestion des gifs
-		var value = sto.gif[key];
-		key = key.split(" + ");
-		if (client.check_all_in(key,msg)) {
-			message.channel.send(value);
-			console.info("send : "+key);
-		}
-  	}
-
-	var args = message.content.split(' ');
-	var command = args.shift().toLowerCase();
-
-});
-
 client.on('interactionCreate', async interaction => {
 	var command = "erreur";
-	if(interaction.customId == "create_call_button"){
-		const modal = new Builders.Modal().setTitle("test").setCustomId("oskoyr");
+	console.dir(`[interaction] id : ${interaction.customId} | type : ${interaction.type} | user : ${interaction.user.tag} | guild : ${interaction.guild.name} | channel : ${interaction.channel.name}`);
+	
 
-			const modalTextInput = new Builders.TextInputComponent().setCustomId("call_name").setLabel("Nom du call").setStyle(Discord.TextInputStyle.Short);
-			const modalTextInput_max = new Builders.TextInputComponent().setCustomId("call_max").setLabel("Nombre de place").setStyle(Discord.TextInputStyle.Short).setRequired(false).setValue("5");
-		
-		
-			const rows = new Builders.ActionRow().addComponents(modalTextInput);
-			modal.addComponents(rows)
-		
-			const rows_max = new Builders.ActionRow().addComponents(modalTextInput_max);
-			modal.addComponents(rows_max)
-		
-			await interaction.showModal(modal);
-			return;
+	if(interaction.customId == "create_call_button"){
+		const modal = new Discord.ModalBuilder().setTitle("test").setCustomId("oskoyr");
+
+		const modalTextInput = new Discord.TextInputBuilder().setCustomId("call_name").setLabel("Nom du call").setStyle(Discord.TextInputStyle.Short);
+		const modalTextInput_max = new Discord.TextInputBuilder().setCustomId("call_max").setLabel("Nombre de place").setStyle(Discord.TextInputStyle.Short).setRequired(false).setValue("5");
+	
+	
+		const rows = new Discord.ActionRowBuilder().addComponents(modalTextInput);
+		modal.addComponents(rows)
+	
+		const rows_max = new Discord.ActionRowBuilder().addComponents(modalTextInput_max);
+		modal.addComponents(rows_max)
+	
+		await interaction.showModal(modal);
+		return;
 	}
 	switch(interaction.type){
 		case 3: //commande issue des component
@@ -144,15 +124,15 @@ client.on('interactionCreate', async interaction => {
 					var user_name = args.get("user_name").value;
 					
 					const alias_rank = {
-						BRONZE:"#87462b",
-						CHALLENGER:"#f8e5da",
-						DIAMOND:"#47318d",
-						GOLD:"#e4b657",
-						GRANDMASTER:"#fc463b",
-						IRON:"#2a1a18",
-						MASTER:"#da2beb",
-						PLATINUM:"#3b7877",
-						SILVER:"#80979e"
+						BRONZE:8865323,
+						CHALLENGER:16311770,
+						DIAMOND:12186367,//"#e4b657"
+						GOLD:15844367,
+						GRANDMASTER:16533051,
+						IRON:2759192,
+						MASTER:14298091,
+						PLATINUM:3897463,
+						SILVER:8427422
 					}
 					
 
@@ -182,27 +162,66 @@ client.on('interactionCreate', async interaction => {
 						}
 					});
 					ranked_data = await response.json()
-
+					console.debug("https://cdn.discordapp.com/avatars/"+client.user.id+"/"+client.user.avatar+".webp")
 					var embeds = []
 					for (const i in ranked_data) {
 						var win_rate = 100 * (ranked_data[i].wins) /(ranked_data[i].wins+ranked_data[i].losses)
-						var myEmbed = new Discord.MessageEmbed()
+						var myEmbed = new Builders.Embed()
 						.setColor(alias_rank[ranked_data[i].tier])
 						.setTitle(ranked_data[i].tier+" "+ranked_data[i].rank)
-						.setAuthor(ranked_data[i].queueType+" of "+user_data.name, "http://ddragon.leagueoflegends.com/cdn/11.22.1/img/profileicon/"+user_data.profileIconId+".png")
+						.setAuthor({name:ranked_data[i].queueType+" of "+user_data.name , iconURL : "http://ddragon.leagueoflegends.com/cdn/11.22.1/img/profileicon/"+user_data.profileIconId+".png" })
 						.setDescription(ranked_data[i].leaguePoints+" LP")
-						.setThumbnail("http://rostro15.fr/node/img/"+ranked_data[i].tier+".png")
-						.setFields([
-							{name:"wins",value:""+ranked_data[i].wins,inline:true},
-							{name:"losses",value:""+ranked_data[i].losses,inline:true},
-							{name:"win rate",value:win_rate.toFixed(2)+" %",inline:false}
-						])
+						.setThumbnail("http://media.rostro15.fr/img/"+ranked_data[i].tier+".png")
+						.addFields({name:"wins",value:""+ranked_data[i].wins,inline:true})
+						.addFields({name:"losses",value:""+ranked_data[i].losses,inline:true})
+						.addFields({name:"win rate",value:""+win_rate+"%",inline:true})					
 						.setTimestamp()
-						.setFooter("insane","https://cdn.discordapp.com/avatars/"+client.user.id+"/"+client.user.avatar+".webp")
+						.setFooter({text:"insane", icon_url:"https://cdn.discordapp.com/avatars/"+client.user.id+"/"+client.user.avatar+".webp"})
 						embeds.push(myEmbed)
 					}
 					if(embeds[0] == undefined ){interaction.reply({content:"\\💣		cette utilisateur n'as pas de rang classer"}); break;}
 					interaction.reply({embeds:embeds})
+
+				break;
+				case "lol_trivia" :
+					var user_name = args.get("user_name").value;
+					var response = await fetch('https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/'+encodeURI(user_name), {
+						method: 'get',
+						headers: {
+							"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:94.0) Gecko/20100101 Firefox/94.0",
+							"Accept-Language": "fr,fr-FR;q=0.8,en-US;q=0.5,en;q=0.3",
+							"Accept-Charset": "application/x-www-form-urlencoded; charset=UTF-8",
+							"Origin": "https://rostro15.fr",
+							"X-Riot-Token": config.riot_key
+						}
+					});
+					user_data = await response.json()
+					if(user_data.id == undefined){interaction.reply({ephemeral:true,content:"\\💣		nom d'utilisateur non trouvé"}); break;}
+					// dMAznnH7CeZkeLzXyoIw6u547EYwt1fHBbzeZaPIXcuth99GPpSb7UURYa2zWbYcZvfudvy7Fkl5TA
+					var response = await fetch('https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/'+user_data.puuid+'/ids?start=0&count=1', {
+						method: 'get',
+						headers: {
+							"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:94.0) Gecko/20100101 Firefox/94.0",
+							"Accept-Language": "fr,fr-FR;q=0.8,en-US;q=0.5,en;q=0.3",
+							"Accept-Charset": "application/x-www-form-urlencoded; charset=UTF-8",
+							"Origin": "https://rostro15.fr",
+							"X-Riot-Token": config.riot_key
+						}
+					});
+					var match_id = await response.json()
+					var response = await fetch('https://europe.api.riotgames.com/lol/match/v5/matches/'+match_id[0], {
+						method: 'get',
+						headers: {
+							"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:94.0) Gecko/20100101 Firefox/94.0",
+							"Accept-Language": "fr,fr-FR;q=0.8,en-US;q=0.5,en;q=0.3",
+							"Accept-Charset": "application/x-www-form-urlencoded; charset=UTF-8",
+							"Origin": "https://rostro15.fr",
+							"X-Riot-Token": config.riot_key
+						}
+					});
+					var match_data = await response.json()
+
+
 
 
 
@@ -335,16 +354,16 @@ client.on('interactionCreate', async interaction => {
 					}
 				break;
 				case "call":
-					const modal = new Builders.Modal().setTitle("test").setCustomId("oskoyr");
+					const modal = new Discord.ModalBuilder().setTitle("test").setCustomId("oskoyr");
 
-					const modalTextInput = new Builders.TextInputComponent().setCustomId("call_name").setLabel("Nom du call").setStyle(Discord.TextInputStyle.Short);
-					const modalTextInput_max = new Builders.TextInputComponent().setCustomId("call_max").setLabel("Nombre de place").setStyle(Discord.TextInputStyle.Short).setRequired(false).setValue("5");
+					const modalTextInput = new Discord.TextInputBuilder().setCustomId("call_name").setLabel("Nom du call").setStyle(Discord.TextInputStyle.Short);
+					const modalTextInput_max = new Discord.TextInputBuilder().setCustomId("call_max").setLabel("Nombre de place").setStyle(Discord.TextInputStyle.Short).setRequired(false).setValue("5");
 				
 				
-					const rows = new Builders.ActionRow().addComponents(modalTextInput);
+					const rows = new Discord.ActionRowBuilder().addComponents(modalTextInput);
 					modal.addComponents(rows)
 				
-					const rows_max = new Builders.ActionRow().addComponents(modalTextInput_max);
+					const rows_max = new Discord.ActionRowBuilder().addComponents(modalTextInput_max);
 					modal.addComponents(rows_max)
 				
 					await interaction.showModal(modal);
@@ -428,123 +447,107 @@ client.on('interactionCreate', async interaction => {
 
 				break;
 				case "tictactoe":
-					/*
-					var J1_ID = Object.keys(interaction.options.resolved.members);
-					client.users.fetch(J1_ID)
-					.then(function(J1){
+					
+					var J1 = interaction.user;
 
-						var J2_ID = interaction.member.user.id;
-						client.users.fetch(J2_ID)
-						.then(async function(J2){
+					var J2 = interaction.options.get("adversaire");
 						
-							var txt = "🟥"+J1.toString() + " contre 🟩" + J2.toString();
-							
-							var embed = new Discord.MessageEmbed()
-							.setColor('#57F287')
-							.setTitle("")
-							.setDescription(txt)
-		
+					var txt = "🟥"+J1.toString() + " contre 🟩" + J2.toString();
+					
+					var embed = new Builders.Embed()
+					.setColor('5763719')
+					.setDescription(txt)
 
-							var msg = {
-								"embeds":[embed],
-								"components": [{
-									"type": 1,
-									"components":[{
-										"type": 2,
-										"style": 2,
-										"label":"\u200B",
-										"emoji":"",
-										"custom_id": "0"
-									},{
-										"type": 2,
-										"style": 2,
-										"label":"\u200B",
-										"custom_id": "1"
-									},{
-										"type": 2,
-										"style": 2,
-										"label":"\u200B",
-										"custom_id": "2"
-									},
-									]
+
+					var msg = {
+						"embeds":[embed],
+						"components": [{
+							"type": 1,
+							"components":[{
+								"type": 2,
+								"style": 2,
+								"label":"\u200B",
+								"emoji":"",
+								"custom_id": "0"
+							},{
+								"type": 2,
+								"style": 2,
+								"label":"\u200B",
+								"custom_id": "1"
+							},{
+								"type": 2,
+								"style": 2,
+								"label":"\u200B",
+								"custom_id": "2"
+							},
+							]
+						},{
+							"type": 1,
+							"components":[{
+								"type": 2,
+								"style": 2,
+								"label":"\u200B",
+								"custom_id": "10"
+							},{
+								"type": 2,
+								"style": 2,
+								"label":"\u200B",
+								"custom_id": "11"
+							},{
+								"type": 2,
+								"style": 2,
+								"label":"\u200B",
+								"custom_id": "12"
+							},
+						]
+						},{
+							"type": 1,
+							"components":[{
+									"type": 2,
+									"style": 2,
+									"label":"\u200B",
+									"custom_id": "20"
 								},{
-									"type": 1,
-									"components":[{
-										"type": 2,
-										"style": 2,
-										"label":"\u200B",
-										"custom_id": "10"
-									},{
-										"type": 2,
-										"style": 2,
-										"label":"\u200B",
-										"custom_id": "11"
-									},{
-										"type": 2,
-										"style": 2,
-										"label":"\u200B",
-										"custom_id": "12"
-									},
-								]
+									"type": 2,
+									"style": 2,
+									"label":"\u200B",
+									"custom_id": "21"
 								},{
-									"type": 1,
-									"components":[{
-											"type": 2,
-											"style": 2,
-											"label":"\u200B",
-											"custom_id": "20"
-										},{
-											"type": 2,
-											"style": 2,
-											"label":"\u200B",
-											"custom_id": "21"
-										},{
-											"type": 2,
-											"style": 2,
-											"label":"\u200B",
-											"custom_id": "22"
-										},
-									]
-								},{
-									"type": 1,
-									"components":[{
-										"type": 2,
-										"style": 4,
-										"label":"stop",
-										"custom_id": "stop"
-									}
-								]
-								}]
-							
+									"type": 2,
+									"style": 2,
+									"label":"\u200B",
+									"custom_id": "22"
+								},
+							]
+						},{
+							"type": 1,
+							"components":[{
+								"type": 2,
+								"style": 4,
+								"label":"stop",
+								"custom_id": "stop"
 							}
-			
-							await client.api.interactions(interaction.id, interaction.token).callback.post({
-								data:{
-									"type": 4,
-									"flags": 0,
-									"data": msg
-								}
-							})
-							
-							mess_reply = client.guilds.cache.get(interaction.guild.id).me.lastMessage;
-							tictactoe(interaction, msg, mess_reply, embed);
-						
-						
-						
-						})
-					})
+						]
+						}]
+					
+					}
+	
+					interaction.reply(msg);
+					
+					mess_reply = client.guilds.cache.get(interaction.guild.id).me.lastMessage;
+					tictactoe(interaction, msg, mess_reply, embed);
+
+					
 					
 
 					
-					*/
+					
 				break;
 				case "game":
-					if(client.guilds.cache.get(interaction.guild.id).members.cache.get(interaction.member.user.id) == undefined){
-						interaction.reply({ephemeral:true,content:"\\💣		ecrivez un message dans n'importe quel salon du serveur visible par le bot puis refaite votre commande"});
-						break;
-					}
-					var member = client.guilds.cache.get(interaction.guild.id).members.cache.get(interaction.member.user.id);
-					var salonID =  member.voice.channelId;
+
+					var guild = client.guilds.cache.get(interaction.guildId)
+					member = guild.members.cache.get(interaction.member.user.id);
+					var salonID = member.voice.channelId;
 					if (salonID == null) { interaction.reply({ephemeral:true,content:'\\⛔		vous devez etre dans un salon vocal'})
 					}else{
 

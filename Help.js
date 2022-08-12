@@ -14,17 +14,12 @@ class Help{
 				},{
 					"type": 2,
 					"style": 1,
-					"label": "liste des gifs",
-					"custom_id": "help_gif"
-				},{
-					"type": 2,
-					"style": 1,
 					"label": "admin",
 					"custom_id": "help_admin"
 				},{
 					"type": 2,
 					"style": 5,
-					"label": "site web",
+					"label": "site web (y a r)",
 					"url":"http://rostro15.fr/"
 				}
 			]
@@ -75,14 +70,12 @@ class Help{
 
 		this.id = interaction.id
 
-		var embed = new Discord.MessageEmbed()
-		.setColor('#0099ff')
+		var embed = new Discord.EmbedBuilder()
 		.setTitle("Commande du bot")
-		.setAuthor(this.client.user.username, this.client.user.avatarURL())
-		.setDescription("")
+		.setAuthor({name: this.client.user.username, iconURL : this.client.user.avatarURL()})
 		.addFields(
 			{ name: '/call message max', value: 'cree un appel, 👍 pour vous inscrire, 👎 pour vous désinscrire, 📯 pour faire l\'appel, ❌ pour effacer le message '},
-			{ name: '/tictactoe @user', value: 'lance un morpion contre la personne choisie choisie'},
+			{ name: '/game jeu', value: 'crée une partie d\'un jeu intégré discord'},
 		)
 	
 		interaction.reply({ephemeral:true, embeds:[embed], components:this.component  });
@@ -104,9 +97,6 @@ class Help{
 					help.admin(interaction);				
 
 				break;
-				case "help_gif":
-					help.gif(interaction);
-				break;
 			}
 		})
 	}
@@ -125,44 +115,32 @@ class Help{
 	}
 
 	index(interaction){
-		var embed = new Discord.MessageEmbed()
-		.setColor('#0099ff')
+		var embed = new Discord.EmbedBuilder()
 		.setTitle("Commande du bot")
-		.setAuthor(this.client.user.username, this.client.user.avatarURL())
-		.setDescription("")
+		.setAuthor({name: this.client.user.username, iconURL : this.client.user.avatarURL()})
 		.addFields(
 			{ name: '/call message max', value: 'cree un appel, 👍 pour vous inscrire, 👎 pour vous désinscrire, 📯 pour faire l\'appel, ❌ pour effacer le message '},
-			{ name: '/tictactoe @user', value: 'lance un morpion contre la personne choisie choisie'},
+			{ name: '/game jeu', value: 'crée une partie d\'un jeu intégré discord'},
 		)
 
 		interaction.update({ephemeral:true, embeds:[embed], components:this.component  });
 	}
 
 	admin(interaction){
-		var embed = new Discord.MessageEmbed()
-		.setColor('#0099ff')
+		var embed = new Discord.EmbedBuilder()
 		.setTitle("Commande du bot : admin")
-		.setAuthor(this.client.user.username, this.client.user.avatarURL())
-		.setDescription("")
+		.setAuthor({name: this.client.user.username, iconURL : this.client.user.avatarURL()})
 		.addFields(
-			{ name: '/gifmanager add/del mot_clef lien/text_a_afficher', value: 'ajoute au suprime un gif'},
 			{ name: '/modifycall add/del call_messageID @user', value: 'ajoute au suprime un utilisateur du call'},
-			{ name: '/admin init', value: 'initialise ou remez a zero le bot dans la guild'},
-			{ name: '/admin link add @role', value: 'relie la salon vocal dans le quelle vous etes avec le role @'},
-			{ name: '/admin link del', value: 'enleve les liens avec le salon dans le quel cous etes'},
-			{ name: '/admin globallink add @role', value: 'definie le role des joueurs dans un salon'},
-			{ name: '/admin globallink del', value: 'enleve le role des joueurs dans un salon'},
 		)
 
 		interaction.update({ephemeral:true, embeds:[embed], components:this.component  });
 	}
 
 	gif(interaction){
-		var embed = new Discord.MessageEmbed()
-		.setColor('#0099ff')
+		var embed = new Discord.EmbedBuilder()
 		.setTitle("Commande du bot")
-		.setAuthor(this.client.user.username, this.client.user.avatarURL())
-		.setDescription("")
+		.setAuthor({name: this.client.user.username, iconURL : this.client.user.avatarURL()})
 
 		var rawdata = fs.readFileSync("guild_sto/"+interaction.guild.id+'.json');
 		var sto = JSON.parse(rawdata);

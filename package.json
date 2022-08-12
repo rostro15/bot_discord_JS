@@ -9,8 +9,8 @@
   "author": "theo 'rostro15' rusinowitch",
   "license": "ISC",
   "dependencies": {
-    "@discordjs/builders": "^0.13.0-dev.1646870850.e787cd5",
     "@discordjs/voice": "^0.7.2",
+    "canvas": "^2.9.3",
     "console-stamp": "^3.0.4",
     "discord.js": "^14.0.0-dev.1646870856.e787cd5",
     "events": "^3.3.0",

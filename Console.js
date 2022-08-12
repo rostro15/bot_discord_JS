@@ -29,24 +29,46 @@ const console = winston.createLogger({
 	levels: config.levels,	
     level:'custom',
     format: winston.format.combine(
+      winston.format.colorize({
+        all:true
+      }),
+      winston.format.timestamp({
+        format: 'DD-MM-YYYY HH:mm:ss'
+      }),
+      winston.format.simple(),
+      winston.format.printf(info => `[${info.timestamp}] ${info.message}`)
+    ),
+
+	transports: [
+	  new winston.transports.File({ format: winston.format.combine(
         winston.format.timestamp({
-            format: 'DD-MM-YYYY HH:mm:ss'
-          }),
+          format: 'DD-MM-YYYY HH:mm:ss'
+        }),
         winston.format.simple(),
         winston.format.printf(info => `[${info.timestamp}] ${info.level}: ${info.message}`)
     ),
-	transports: [
-	  new winston.transports.File({ filename: 'combined.log' }),
+    filename: 'combined.log' }),
 	],
+
+  exceptionHandlers: [
+    new winston.transports.Console({
+      exitOnError: false 
+    })
+  ]
 });
 
 console.add(new winston.transports.Console({
     format: winston.format.combine(
-        winston.format.colorize(),
-        winston.format.simple(),
-        winston.format.printf(info => `[${info.timestamp}] ${info.level}: ${info.message}`)
+      winston.format.timestamp({
+        format: 'DD-MM-YYYY HH:mm:ss'
+      }),
+      winston.format.colorize(),
+      winston.format.simple(),
+      winston.format.printf(info => `[${info.timestamp}] ${info.message}`)
     ),
-  }));
+}));
+
+
 
 
 exports.console = console;
