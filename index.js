@@ -59,8 +59,21 @@ client.on('ready', async () => {
 	var rawdata = fs.readFileSync("call_sto/call_sto.json");
 	var fileData = JSON.parse(rawdata);
 	for(var key in fileData) {
-		var value = fileData[key];
+		try {
+			var value = fileData[key];
 		new Call(client, value, key);
+		} catch (error) {
+			var rawdata = fs.readFileSync("call_sto/call_sto.json");
+				var fileData = JSON.parse(rawdata);
+
+				delete fileData[key];
+
+				var data = JSON.stringify(fileData);
+				fs.writeFileSync("call_sto/call_sto.json", data);
+				console.error(error);
+				console.warn("erreur dans la recup d'un call");
+				return
+		}
 	}
 
 	client.guilds.cache.each(guild => { //liste des guilds dans lequelles il y a le bot
@@ -551,13 +564,14 @@ client.on('interactionCreate', async interaction => {
 					if (salonID == null) { interaction.reply({ephemeral:true,content:'\\⛔		vous devez etre dans un salon vocal'})
 					}else{
 
-						var rep = await client.api.channels(salonID).invites.post({
+						/*var rep = await client.api.channels(salonID).invites.post({
 							data:{
 								
 								"target_type":2,
 								"target_application_id":args.get("jeu").value
 							}
-						})
+						})*/
+						var rep = await member.voice.channel.createInvite({maxAge:86400, maxUses:0, unique:false, targetApplication:args.get("jeu").value, targetType:2})
 
 						interaction.reply("https://discord.gg/"+rep.code)
 

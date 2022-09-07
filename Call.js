@@ -295,7 +295,7 @@ class Call{
 		}
 		if(k){
 			this.sto.push(user.toString());
-			this.myEmbed.setDescription(this.myEmbed.description+"\n"+user.toString());
+			this.myEmbed.setDescription(this.myEmbed.data.description+"\n"+user.toString());
 			this.update();
 
 			console.info("call : add "+user.displayName);
