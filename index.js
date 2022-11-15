@@ -95,6 +95,10 @@ modal_collector.on('collect', async (modal_interaction) => {
 
 
 client.on('interactionCreate', async interaction => {
+	try {
+		
+	
+	
 	var command = "erreur";
 	console.dir(`[interaction] id : ${interaction.customId} | type : ${interaction.type} | user : ${interaction.user.tag} | guild : ${interaction.guild.name} | channel : ${interaction.channel.name}`);
 	
@@ -605,6 +609,10 @@ client.on('interactionCreate', async interaction => {
 			break;
 			}
 		break;
+	}
+	} catch (error) {
+		console.error(error)
+		interaction.reply({ephemeral:true,content:"\\💣		une erreur inconnue a eu lieu C HONTEUX"});
 	}
 });
 
