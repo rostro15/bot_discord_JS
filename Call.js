@@ -30,30 +30,42 @@ class Call{
 			}
 			console.error(error);
 		}
+		try {
+			this.mess_relpy =  message;
+			this.messID =  message.id;
+			this.auteur = {user: message.author};
+			var embed = message.embeds[0].data;
+			this.myEmbed = new Discord.EmbedBuilder()
+			//.setColor(180255)
+			.setTitle(embed.title)
+			.setAuthor(embed.author)
+			.setDescription(embed.description)
+			if(embed.footer != undefined){
+				this.myEmbed.setFooter(embed.footer)
+			}
+			if(this.myEmbed.data.footer == null){
+				this.max = 0;
+			}else{
+				this.max = parseInt(this.myEmbed.data.footer.text.split("/")[1]);
+				this.cmpt = parseInt(this.myEmbed.data.footer.text.split("/")[0]);
+			}
 
+			this.sto = this.myEmbed.data.description.split("\n");
+			console.verbose("call found : " + this.myEmbed.data.title);
+			this.open_listeners();
+		} catch (error) {
+			console.error(error)
+			console.warn("erreur inconnu dans la recréation d'un call")
+			var rawdata = fs.readFileSync("call_sto/call_sto.json");
+			var fileData = JSON.parse(rawdata);
+
+			delete fileData[messageID];
+
+			var data = JSON.stringify(fileData);
+			fs.writeFileSync("call_sto/call_sto.json", data);
+		}
 		
-		this.mess_relpy =  message;
-		this.messID =  message.id;
-		this.auteur = {user: message.author};
-		var embed = message.embeds[0].data;
-		this.myEmbed = new Discord.EmbedBuilder()
-		//.setColor(180255)
-		.setTitle(embed.title)
-		.setAuthor(embed.author)
-		.setDescription(embed.description)
-		if(embed.footer != undefined){
-			this.myEmbed.setFooter(embed.footer)
-		}
-		if(this.myEmbed.data.footer == null){
-			this.max = 0;
-		}else{
-			this.max = parseInt(this.myEmbed.data.footer.text.split("/")[1]);
-			this.cmpt = parseInt(this.myEmbed.data.footer.text.split("/")[0]);
-		}
-
-		this.sto = this.myEmbed.data.description.split("\n");
-		console.verbose("call found : " + this.myEmbed.data.title);
-		this.open_listeners();
+		
 	}
 
 
@@ -83,7 +95,7 @@ class Call{
 			return;
 		}
 
-		console.info("call crée par : "+interaction.member.user.username);
+		console.info("call crée par : "+interaction.member.user.username+" | name : "+titre_msg+", nb : "+max);
 		var myEmbed = new Discord.EmbedBuilder()
 		//.setColor(180255)
 		.setTitle(titre_msg)

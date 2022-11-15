@@ -82,13 +82,16 @@ client.on('ready', async () => {
 	})
 	client.guilds_list = guilds
 
-	const modal_collector = new Discord.InteractionCollector(client, {interactionType:5})
-	modal_collector.on('collect', async (modal_interaction) => {
-		var call = client.create_call(em, modal_interaction);
-	})
+	
 
 
 });
+
+const modal_collector = new Discord.InteractionCollector(client, {interactionType:5})
+modal_collector.on('collect', async (modal_interaction) => {
+	client.create_call(em, modal_interaction);
+})
+
 
 
 client.on('interactionCreate', async interaction => {
@@ -97,7 +100,7 @@ client.on('interactionCreate', async interaction => {
 	
 
 	if(interaction.customId == "create_call_button"){
-		const modal = new Discord.ModalBuilder().setTitle("test").setCustomId("oskoyr");
+		const modal = new Discord.ModalBuilder().setTitle("creation call").setCustomId("oskoyr");
 
 		const modalTextInput = new Discord.TextInputBuilder().setCustomId("call_name").setLabel("Nom du call").setStyle(Discord.TextInputStyle.Short);
 		const modalTextInput_max = new Discord.TextInputBuilder().setCustomId("call_max").setLabel("Nombre de place").setStyle(Discord.TextInputStyle.Short).setRequired(false).setValue("5");
@@ -375,7 +378,6 @@ client.on('interactionCreate', async interaction => {
 				
 					const rows = new Discord.ActionRowBuilder().addComponents(modalTextInput);
 					modal.addComponents(rows)
-				
 					const rows_max = new Discord.ActionRowBuilder().addComponents(modalTextInput_max);
 					modal.addComponents(rows_max)
 				
@@ -391,7 +393,7 @@ client.on('interactionCreate', async interaction => {
 						interaction.reply({ephemeral:true,content:"\\⛔		vous n'avez pas les droits pour faire cette commande rip"});
 					}
 					await interaction.reply({
-						content:"pour crée un call cliquer sur le bouton",
+						content:"pour creer un call cliquer sur le bouton",
 						components:[{
 							"type": 1,
 							
@@ -409,7 +411,6 @@ client.on('interactionCreate', async interaction => {
 						}],
 						fetchReply:true
 					})
-					return;
 				break;
 				case "modifycall":
 					var members_ID = args.getMember("user").user.id;
@@ -576,6 +577,14 @@ client.on('interactionCreate', async interaction => {
 						interaction.reply("https://discord.gg/"+rep.code)
 
 					}
+				break;
+				
+				
+				case "brotransform":
+					var member = interaction.options.getMember("bro")
+					var role = await interaction.guild.roles.fetch("1042070248758722570");
+					member.roles.add(role)
+					interaction.reply({ephemeral:false, content: member.toString()+" est maintenant un turbo bro"});
 				break;
 				default:
 					interaction.reply({ephemeral:true,content:"\\💣		une erreur inconnue a eu lieu"});
